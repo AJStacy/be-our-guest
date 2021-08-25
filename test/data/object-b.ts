@@ -1,7 +1,6 @@
-import { ObjectA } from "./ObjectA";
+import { ObjectA } from './object-a';
 
 export class ObjectB {
-
   private objectA: ObjectA;
 
   private prop: number = 0;
@@ -10,7 +9,7 @@ export class ObjectB {
     this.objectA = objectA;
   }
 
-  public addNumberToA(num: number):number {
+  public addNumberToA(num: number): number {
     return num + this.objectA.returnMyNumber();
   }
 
@@ -18,8 +17,7 @@ export class ObjectB {
     this.prop = prop;
   }
 
-  public get testProp():number {
+  public get testProp(): number {
     return this.prop;
   }
-
 }

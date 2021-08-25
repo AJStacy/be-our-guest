@@ -1,4 +1,3 @@
-import test from 'ava';
 import { Services, Registry } from '../src';
 import { ObjectA, ObjectB } from './data';
 
@@ -11,7 +10,7 @@ interface Dependencies extends Registry {
   objectB: ObjectB;
 }
 
-test('register a singleton class', async t => {
+test('register a singleton class', async () => {
   const services = new Services<Dependencies>();
 
   services.singleton('objectA_singleton', async () => {
@@ -21,13 +20,13 @@ test('register a singleton class', async t => {
   const object_a = await services.get('objectA_singleton');
 
   if (object_a instanceof ObjectA) {
-    t.is(object_a.returnMyNumber(), 5);
+    expect(object_a.returnMyNumber()).toBe(5);
   } else {
-    t.fail('object_a is not an instance of ObjectA');
+    throw new Error('object_a is not an instance of ObjectA');
   }
 });
 
-test('register a class with dependency on a singleton and instantiate it', async t => {
+test('register a class with dependency on a singleton and instantiate it', async () => {
   const services = new Services<Dependencies>();
 
   services.singleton('objectA_singleton', async () => {
@@ -45,15 +44,15 @@ test('register a class with dependency on a singleton and instantiate it', async
     object_b.testProp = 10;
     object_b2.testProp = 20;
 
-    t.falsy(object_b.testProp === object_b2.testProp);
-    t.is(object_b.testProp, 10);
-    t.is(object_b2.testProp, 20);
+    expect(object_b.testProp === object_b2.testProp).toBeFalsy();
+    expect(object_b.testProp).toBe(10);
+    expect(object_b2.testProp).toBe(20);
   } else {
-    t.fail();
+    throw new Error('object_b or object_b2 was not an instance of ObjectB');
   }
 });
 
-test('register an instance of a class', async t => {
+test('register an instance of a class', async () => {
   const services = new Services<Dependencies>();
   const object_a = new ObjectA(5);
 
@@ -61,13 +60,13 @@ test('register an instance of a class', async t => {
   const object_a_test = await services.get('objectA_singleton');
 
   if (object_a === object_a_test) {
-    t.is(object_a_test.returnMyNumber(), 5);
+    expect(object_a_test.returnMyNumber()).toBe(5);
   } else {
-    t.fail();
+    throw new Error('object_a is not equivalent to object_a_test');
   }
 });
 
-test('register a class that requires arguments', async t => {
+test('register a class that requires arguments', async () => {
   const services = new Services<Dependencies>();
 
   services.bind('objectA', async ([num]) => {
@@ -77,8 +76,8 @@ test('register a class that requires arguments', async t => {
   const objectA = await services.get('objectA', 5);
 
   if (objectA) {
-    t.is(objectA.returnMyNumber(), 5);
+    expect(objectA.returnMyNumber()).toBe(5);
   } else {
-    t.fail();
+    throw new Error('objectA is undefined');
   }
 });
