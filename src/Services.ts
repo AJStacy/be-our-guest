@@ -3,9 +3,7 @@ import { Log } from './Log';
 import { LogOverrides, Registry, DepDef, DepArgs } from '~/_contracts';
 
 export type Tags = Map<string, string[]>;
-export type Callback<Ds extends Registry, Dep, Name extends keyof Ds> = (
-  args: DepArgs<Ds, Name>
-) => Promise<Dep>;
+export type Callback<Dep, DepArgs> = (args: DepArgs) => Promise<Dep>;
 
 /**
  * A TypeScript native async friendly service container.
@@ -25,7 +23,7 @@ export class Services<Ds extends Registry> {
    */
   private classes: Map<
     keyof Ds,
-    Callback<Ds, DepDef<Ds, keyof Ds>, keyof Ds>
+    Callback<DepDef<Ds, keyof Ds>, any>
   > = new Map();
 
   /**
@@ -33,7 +31,7 @@ export class Services<Ds extends Registry> {
    */
   private singletonCallbacks: Map<
     keyof Ds,
-    Callback<Ds, DepDef<Ds, keyof Ds>, keyof Ds>
+    Callback<DepDef<Ds, keyof Ds>, any>
   > = new Map();
 
   /**
@@ -56,7 +54,7 @@ export class Services<Ds extends Registry> {
    */
   public async bind<Name extends keyof Ds>(
     name: Name,
-    cb: Callback<Ds, DepDef<Ds, Name>, keyof Ds>
+    cb: Callback<DepDef<Ds, Name>, DepArgs<Ds, Name>>
   ): Promise<void> {
     this.classes.set(name, cb);
   }
@@ -66,7 +64,7 @@ export class Services<Ds extends Registry> {
    */
   public async singleton<Name extends keyof Ds>(
     name: Name,
-    cb: Callback<Ds, DepDef<Ds, Name>, keyof Ds>
+    cb: Callback<DepDef<Ds, Name>, DepArgs<Ds, Name>>
   ): Promise<void> {
     this.singletonCallbacks.set(name, cb);
   }
@@ -119,9 +117,8 @@ export class Services<Ds extends Registry> {
     args: DepArgs<Ds, Name>
   ): Promise<DepDef<Ds, Name>> {
     const closure = this.classes.get(name) as Callback<
-      Ds,
       DepDef<Ds, Name>,
-      keyof Ds
+      DepArgs<Ds, Name>
     >;
     return await closure(args);
   }

@@ -11,15 +11,12 @@ interface Dependencies extends Registry {
   objectB: ObjectB;
 }
 
-test('Register a singleton class', async t => {
+test('register a singleton class', async t => {
   const services = new Services<Dependencies>();
 
   services.singleton('objectA_singleton', async () => {
     return new ObjectA(5);
   });
-
-  // ---- testing -----
-  const objectA = await services.get('objectA', 5);
 
   const object_a = await services.get('objectA_singleton');
 
@@ -30,7 +27,7 @@ test('Register a singleton class', async t => {
   }
 });
 
-test('Register a class with dependency on a singleton and instantiate it', async t => {
+test('register a class with dependency on a singleton and instantiate it', async t => {
   const services = new Services<Dependencies>();
 
   services.singleton('objectA_singleton', async () => {
@@ -56,7 +53,7 @@ test('Register a class with dependency on a singleton and instantiate it', async
   }
 });
 
-test('Register an instance of a class', async t => {
+test('register an instance of a class', async t => {
   const services = new Services<Dependencies>();
   const object_a = new ObjectA(5);
 
@@ -65,6 +62,22 @@ test('Register an instance of a class', async t => {
 
   if (object_a === object_a_test) {
     t.is(object_a_test.returnMyNumber(), 5);
+  } else {
+    t.fail();
+  }
+});
+
+test('register a class that requires arguments', async t => {
+  const services = new Services<Dependencies>();
+
+  services.bind('objectA', async ([num]) => {
+    return new ObjectA(num);
+  });
+
+  const objectA = await services.get('objectA', 5);
+
+  if (objectA) {
+    t.is(objectA.returnMyNumber(), 5);
   } else {
     t.fail();
   }
