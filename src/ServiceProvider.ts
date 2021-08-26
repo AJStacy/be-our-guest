@@ -1,5 +1,5 @@
-import { Services } from ".";
-import { Registry } from "~/_contracts";
+import { Services } from '.';
+import { Registry } from '~/_contracts';
 
 /**
  * The constructor blueprint for a ServiceProvider.
@@ -31,7 +31,7 @@ export interface ServiceProvider<Ds extends Registry> {
   /**
    * Register your dependencies with the service container here.
    */
-  register: (services: Services<Ds>) => Promise<keyof Ds>;
+  register: (services: Services<Ds>) => Promise<void>;
 
   /**
    * A hook that is executed before the register method.

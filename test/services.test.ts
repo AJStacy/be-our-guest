@@ -1,14 +1,5 @@
-import { Services, Registry } from '../src';
-import { ObjectA, ObjectB } from './data';
-
-interface Dependencies extends Registry {
-  objectA_singleton: ObjectA;
-  objectA: {
-    type: ObjectA;
-    args: [number];
-  };
-  objectB: ObjectB;
-}
+import { Services } from '../src';
+import { ObjectA, ObjectB, Dependencies } from './data';
 
 test('register a singleton class', async () => {
   const services = new Services<Dependencies>();
