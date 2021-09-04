@@ -8,7 +8,6 @@ export type Callback<Dep, DepArgs> = (args: DepArgs) => Promise<Dep>;
 /**
  * A TypeScript native async friendly service container.
  *
- * @param CoreDs  Core Dependencies that all service providers need.
  * @param Ds      The list of dependencies that the service container will contain.
  */
 export class Services<Ds extends Registry> {
@@ -40,9 +39,8 @@ export class Services<Ds extends Registry> {
   private singletons: Map<keyof Ds, Promise<DepDef<Ds, keyof Ds>>> = new Map();
 
   /**
-   * Accepts an object generic that contains any dependencies required for the defer step.
+   * Constructs a new service container instance.
    *
-   * @param Core          Core dependencies that the ServiceProvider needs during the defer step.
    * @param LogOverrides  Optional logging methods that override the defaults used by this library.
    */
   constructor(log_overrides?: LogOverrides) {
@@ -141,11 +139,6 @@ export class Services<Ds extends Registry> {
     service_providers: Array<ServiceProviderConstructor<Ds>>
   ): ServiceProvider<Ds>[] {
     return service_providers.reduce((acc, Provider) => {
-      if (Provider.defer && Provider.defer()) {
-        this.log.info(`Deferred loading of ${`${Provider}`.split(' ')[1]}.`);
-        return acc;
-      }
-
       return acc.concat([new Provider()]);
     }, [] as ServiceProvider<Ds>[]);
   }

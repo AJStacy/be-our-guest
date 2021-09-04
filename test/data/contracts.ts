@@ -8,6 +8,7 @@ export interface Dependencies extends Registry {
     args: [number];
   };
   objectB: ObjectB;
+  deferTest: { foo: 'bar' };
 }
 
 export type TestProvider = ServiceProvider<Dependencies>;
