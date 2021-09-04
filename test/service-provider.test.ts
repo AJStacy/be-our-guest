@@ -68,36 +68,5 @@ test('register service providers and boot them', async () => {
     }
   }
 
-  class DeferTestProvider implements TestProvider {
-    public async beforeRegister() {
-      // console.debug('Registering deferTest...');
-    }
-
-    public async register(services: TestServices) {
-      services.instance('deferTest', { foo: 'bar' });
-    }
-
-    public async afterRegister() {
-      // console.debug('Registration of deferTest completed.');
-    }
-
-    public async beforeBoot() {
-      // console.debug('Booting deferTest...');
-    }
-
-    public async boot() {
-      throw new Error('DeferTestProvider should not be booting!');
-    }
-
-    public async afterBoot() {
-      // console.debug('deferTest booting complete.');
-    }
-
-    public async defer() {
-      // If a boolean of true is returned from defer, the Provider should not boot.
-      return true;
-    }
-  }
-
-  await services.add([ObjectAProvider, ObjectBProvider, DeferTestProvider]);
+  await services.add([ObjectAProvider, ObjectBProvider]);
 });
