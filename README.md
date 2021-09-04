@@ -1,103 +1,83 @@
-# TSDX User Guide
+# Be Our Guest
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+> Fast and friendly services.
 
-> This TSDX setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
+Be Our Guest is lightweight, asynchronous, inversion of control (IoC) service container developed for JavaScript and TypeScript applications.
 
-> If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
+## Why Use an IoC service container?
 
-## Commands
+In modern front-end and back-end development applications are made up of many smaller modules. Often these smaller modules have dependency on other modules. Each of these modules may need a boot step to initialize it. Rather than have the module that has a dependency initialize that dependency itself, we initialize it externally and pass it into the module. By following this pattern we can initialize and manage all of our modules at a single level which greatly simplifies our architecture management. It also allows us to easily swap modules if our requirements change.
 
-TSDX scaffolds your new library inside `/src`.
+A deep dive tutorial on IoC can be found here: [https://www.tutorialsteacher.com/ioc/introduction](https://www.tutorialsteacher.com/ioc/introduction)
 
-To run TSDX, use:
+A service container gives our applications an easy way to register and initialize all of the modules and their dependencies.
+
+## Why Use "Be Our Guest"?
+
+Be Our Guest differs from other JS IoC containers primarily by its asynchronous nature. Other IoC container variations that currently exist are synchronous in nature. This presents some issues; primarily with booting dependencies that are asynchronous.
+
+As an example let's say we have a module that handles auth within our application. After you construct and register the module it requires a boot step send some requests to the backend system to retrieve auth tokens that our other API modules will require. This action is an asynchronous action and we do not want to block initialization of our other modules while this module makes its request. We also need to inject this module into other modules that depend on the auth token. Those modules must await the initialization of our token module before they can be used. As you can see, providing async support for these types of initialization are crucial.
+
+Be Our Guest is written in TypeScript and provides strong typing support for registering, booting, and getting your services and is centrally typed from a single provided Registry type. What this means is that you define your types once in a single place.
+
+**Example**
+
+```typescript
+// Other frameworks every time you request your dependency
+import { MyClass } from './somewhere';
+
+const myClass = services.get<MyClass>('MyClass');
+```
+
+```typescript
+// Be Our Guest (myClass will be typed to MyClass)
+const myClass = await services.get('MyClass');
+```
+
+Be Our Guest purposefully does not provide support for Dependency Injection for a couple of reason. First, JavaScript does not currently provide a native way to use Reflection to understand the interface of a prototype. The only way to implement automatic DI is to use decorators to apply meta data to our modules to polyfill Reflection. Second, this adds code bloat and reduces performance as well as puts strong dependency on TypeScript. Automatic Dependency Injection is a very nice feature, but ultimately it is a convenience and not required for a service container. Because of this design decision, Be Our Guest can easily be used in a vanilla JS development environment. It also makes it much easier to adopt as you will not need to add decorators to your pre-existing modules.
+
+## Installation
+
+**npm**
 
 ```bash
-npm start # or yarn start
+npm install --save be-our-guest
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+**yarn**
 
-To do a one-off build, use `npm run build` or `yarn build`.
-
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle Analysis
-
-[`size-limit`](https://github.com/ai/size-limit) is set up to calculate the real cost of your library with `npm run size` and visualize the bundle with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
+```bash
+yarn add be-our-guest
 ```
 
-### Rollup
+## Usage
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+Be Our Guest is made up of three parts, the **Registry Type**, the **Service Container**, and the **Service Provider**. Here is a basic diagram of how each part operates.
 
-### TypeScript
+![Service Container Parts Diagram](images/be-our-guest.png)
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+### Step 1: Create the Service Registry Type (Optional)
 
-## Continuous Integration
+> Skip this step if you are using vanilla JS
 
-### GitHub Actions
+```typescript
+import { Registry, Services } from 'be-our-guest';
+// Import the services you want to provide
+import { ServiceA } from './somewhere/ServiceA';
+import { ServiceB } from './somewhere/ServiceB';
 
-Two actions are added by default:
-
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+interface MyServices extends Registry {
+  /* We can map our ServiceA type to its label within the service container.
+     The label is the name you will use to get your service out of the container later. */
+  serviceA: ServiceA;
+  /* Some services will require primitives when they are constructed. In these cases you can map
+     map its type and required arguments like so. */
+  serviceB: {
+    type: ServiceB;
+    args: [string, number];
+  };
 }
+
+// Now we can construct our service container with strong types describing the services it provides.
+export const services = new Services<MyServices>();
 ```
-
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
-
-## Module Formats
-
-CJS, ESModules, and UMD module formats are supported.
-
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
-## Named Exports
-
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
