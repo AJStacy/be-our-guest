@@ -23,18 +23,38 @@ Be Our Guest is written in TypeScript and provides strong typing support for reg
 **Example**
 
 ```typescript
-// Other frameworks every time you request your dependency
+// --- Other Frameworks ---
 import { MyClass } from './somewhere';
 
+// You must pass the type every time you request a service
 const myClass = services.get<MyClass>('MyClass');
 ```
 
 ```typescript
-// Be Our Guest (myClass will be typed to MyClass)
+// --- Be Our Guest ---
+
+// myClass will be typed to MyClass because we typed
+// our services when we created our service container instance
 const myClass = await services.get('MyClass');
 ```
 
-Be Our Guest purposefully does not provide support for Dependency Injection for a couple of reason. First, JavaScript does not currently provide a native way to use Reflection to understand the interface of a prototype. The only way to implement automatic DI is to use decorators to apply meta data to our modules to polyfill Reflection. Second, this adds code bloat and reduces performance as well as puts strong dependency on TypeScript. Automatic Dependency Injection is a very nice feature, but ultimately it is a convenience and not required for a service container. Because of this design decision, Be Our Guest can easily be used in a vanilla JS development environment. It also makes it much easier to adopt as you will not need to add decorators to your pre-existing modules.
+### What about Automatic Dependency Injection?
+
+Be Our Guest purposefully does not provide support for Automatic Dependency Injection (Auto-DI) for a couple of reason. First, JavaScript does not currently provide a native way to use Reflection to understand the interface of a prototype. The only way to implement Auto-DI is to use decorators to apply meta data to our modules to polyfill Reflection. Second, this adds code bloat and reduces performance as well as puts strong dependency on TypeScript. Auto-DI is a very nice feature, but ultimately it is a convenience and not required for a service container. Because of this design decision, Be Our Guest can easily be used in a vanilla JS development environment. It also makes it much easier to adopt as you will not need to add decorators to your pre-existing modules.
+
+**NOTE:** If JavaScript releases support for Reflection in the future we might add Auto-DI as a feature.
+
+## How It Works
+
+TODO
+
+![Service Container Parts Diagram](images/be-our-guest.png)
+
+Be Our Guest is made up of three parts, the **Registry Type**, the **Service Container**, and the **Service Provider**. Here is a basic diagram of how each part operates.
+
+All services registered into the container must be wrapped by a Service Provider. The Service Provider provides hooks for
+registering your services and booting your service. All services will go through the register phase first. Once the register
+phase is completed then all services that define a boot method in their provider will be booted.
 
 ## Installation
 
@@ -52,32 +72,7 @@ yarn add be-our-guest
 
 ## Usage
 
-Be Our Guest is made up of three parts, the **Registry Type**, the **Service Container**, and the **Service Provider**. Here is a basic diagram of how each part operates.
+Follow the appropriate link below for your environment.
 
-![Service Container Parts Diagram](images/be-our-guest.png)
-
-### Step 1: Create the Service Registry Type (Optional)
-
-> Skip this step if you are using vanilla JS
-
-```typescript
-import { Registry, Services } from 'be-our-guest';
-// Import the services you want to provide
-import { ServiceA } from './somewhere/ServiceA';
-import { ServiceB } from './somewhere/ServiceB';
-
-interface MyServices extends Registry {
-  /* We can map our ServiceA type to its label within the service container.
-     The label is the name you will use to get your service out of the container later. */
-  serviceA: ServiceA;
-  /* Some services will require primitives when they are constructed. In these cases you can map
-     map its type and required arguments like so. */
-  serviceB: {
-    type: ServiceB;
-    args: [string, number];
-  };
-}
-
-// Now we can construct our service container with strong types describing the services it provides.
-export const services = new Services<MyServices>();
-```
+- [TypeScript Steps](docs/typescript-steps.md)
+- [JavaScript Steps](docs/javascript-steps.md)
