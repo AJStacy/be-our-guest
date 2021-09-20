@@ -7,6 +7,11 @@
     "dist",
     "src"
   ],
+  "homepage": "https://github.com/AJStacy/be-our-guest",
+  "repository": {
+    "type": "git",
+    "url": "https:git@github.com:AJStacy/be-our-guest.git"
+  },
   "engines": {
     "node": ">=12"
   },

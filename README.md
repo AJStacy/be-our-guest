@@ -6,7 +6,7 @@
 
 Be Our Guest is lightweight, asynchronous, inversion of control (IoC) service container developed for JavaScript and TypeScript applications.
 
-## Why Use an IoC service container?
+## Why Use an IoC Service Container?
 
 In modern front-end and back-end development applications are made up of many smaller modules. Often these smaller modules have dependency on other modules. Each of these modules may need a boot step to initialize it. Rather than have the module that has a dependency initialize that dependency itself, we initialize it externally and pass it into the module. By following this pattern we can initialize and manage all of our modules at a single level which greatly simplifies our architecture management. It also allows us to easily swap modules if our requirements change.
 
@@ -18,7 +18,7 @@ A service container gives our applications an easy way to register and initializ
 
 Be Our Guest differs from other JS IoC containers primarily by its asynchronous nature. Other IoC container variations that currently exist are synchronous in nature. This presents some issues; primarily with booting dependencies that are asynchronous.
 
-As an example let's say we have a module that handles auth within our application. After you construct and register the module it requires a boot step send some requests to the backend system to retrieve auth tokens that our other API modules will require. This action is an asynchronous action and we do not want to block initialization of our other modules while this module makes its request. We also need to inject this module into other modules that depend on the auth token. Those modules must await the initialization of our token module before they can be used. As you can see, providing async support for these types of initialization are crucial.
+As an example let's say we have a module that handles auth within our application. After you construct and register the module it requires a boot step to send some requests to the backend system to retrieve auth tokens that our other API modules will require. This action is an asynchronous action and we do not want to block initialization of our other modules while this module makes its request. We also need to inject this module into other modules that depend on the auth token. Those modules must await the initialization of our token module before they can be used. As you can see, providing async support for these types of initialization are crucial.
 
 Be Our Guest is written in TypeScript and provides strong typing support for registering, booting, and getting your services and is centrally typed from a single provided Registry type. What this means is that you define your types once in a single place.
 
