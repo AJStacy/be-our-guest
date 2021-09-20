@@ -75,3 +75,7 @@ TypeScript, but if that is not possible we are also providing vanilla JS setup i
 
 - [TypeScript Steps](docs/typescript-steps.md)
 - [JavaScript Steps](docs/javascript-steps.md)
+
+## Credits
+
+This project draws heavy inspiration from the [Laravel service container](https://laravel.com/docs/8.x/container). If you are creating a PHP project or want to learn some more service container principles, I highly recommend reading the [Laravel documentation](https://laravel.com/docs/8.x/container).

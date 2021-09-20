@@ -3,5 +3,6 @@ images/logo.ai
 images/logo.png
 images/logo.svg
 test/
+src/
 tsconfig.json
 README.md
