@@ -1,5 +1,7 @@
 # Be Our Guest
 
+![Be Our Guest logo](images/logo-small.svg)
+
 > Fast and friendly services.
 
 Be Our Guest is lightweight, asynchronous, inversion of control (IoC) service container developed for JavaScript and TypeScript applications.
