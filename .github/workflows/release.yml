@@ -4,7 +4,7 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  validate:
     name: Validate master and Publish
 
     runs-on: ${{ matrix.os }}
@@ -33,3 +33,27 @@ jobs:
 
       - name: Build
         run: yarn build
+  release:
+    name: Release
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Yarn Cache
+        uses: c-hive/gha-yarn-cache@v1
+      - name: Install Dependencies
+        run: yarn install --force
+      - name: Build
+        run: yarn build
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
