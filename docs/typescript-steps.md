@@ -20,8 +20,7 @@ interface AppServicesRegistry extends Registry {
   apiWrapper: ApiWrapper;
 
   /* If your service requires primitive arguments when registered you can write it like this.
-     In this example, ApiComponent requires the user to provide primitive values that are a string
-     and a number. */
+     In this example, ApiComponent requires the user to provide a primitive value that is a number. */
   apiComponent: {
     type: ApiComponent;
     args: [number];
