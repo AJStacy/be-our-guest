@@ -24,7 +24,7 @@ interface AppServicesRegistry extends Registry {
      and a number. */
   apiComponent: {
     type: ApiComponent;
-    args: [string, number];
+    args: [number];
   };
 }
 
@@ -71,7 +71,7 @@ export class ApiWrapperProvider implements AppServiceProvider {
     const apiWrapper = await services.get('apiWrapper');
 
     // Now we can run the initialize method that ApiWrapper requires at boot.
-    await serviceA.initialize();
+    await apiWrapper.initialize();
   }
 }
 ```
@@ -79,27 +79,51 @@ export class ApiWrapperProvider implements AppServiceProvider {
 ### Example: ApiComponent Provider
 
 Remember, the beauty of using an IoC service container is that management of dependency instantiation is handled for you.
-In this example, ServiceB needs an instance of ServiceA injected into it so that ServiceB can use ServiceA's methods.
+
+In this example, _ApiComponent_ needs an instance of _ApiWrapper_ injected into it so that ApiComponent can use ApiWrapper's methods. ApiComponent also needs a primitive number value passed to it upon instantiation to declare the maximum timeout value for it's api requests. This is handled by args made available in the callback on the `bind()` method. The types are defined by the `Registry` type in step #1 above.
 
 ```typescript
+// api-component-provider.ts
+
+// Import our AppServiceProvider and AppServices types we defined in step #1
+import { AppServiceProvider, AppServices } from './somewhere/services.ts';
+// Import your service that you want to add
+import { ApiComponent } from './somewhere/ApiComponent.ts';
+
+export class ApiComponentProvider implements AppServiceProvider {
+  public async register(services: AppServices) {
+    /* We will bind this service to the container as a class using the `bind()` method.
+       When we retrieve this service later it will be a unique instance. Our ApiComponent
+       also requires a request timeout value. We can access it by destructuring the provided
+       args in the callback. The arg types are defined in the Registry type (above). */
+    services.bind('apiComponent', async ([timeout]) => {
+      /* The ApiComponent service requires that you provide it with an instance of
+         the ApiWrapper. To do this, we simply call `get()` on our service container. */
+      return new ApiComponent(await services.get('apiWrapper'), timeout);
+    });
+  }
+
+  /** We can omit the boot step because this service does not require it. **/
+}
 ```
 
 ## Step 3: Add Service Provider to the Container
 
-Now that we have created our service providers we must add them to the service container. The service container will
-begin registering and booting all of the providers once the `add()` method has been called and the providers have been
-passed into it.
+Now that we have created our service providers we must add them to the service container. The service container will begin registering and booting all of the providers once the `add()` method has been called and the providers have been passed into it.
 
 ```typescript
 // main.ts
 
 import { services } from './somewhere/services.ts';
-import { ServiceAProvider, ServiceBProvider } from './somewhere/providers.ts';
+import {
+  ApiWrapperProvider,
+  ApiComponentProvider,
+} from './somewhere/providers.ts';
 
 async function main() {
   /* We'll add the service providers to the container and voila! We have a service container
-    with all of our services available! */
-  await services.add([ServiceAProvider, ServiceBProvider]);
+    with all of our services available! The order in which they are added here does not matter. */
+  await services.add([ApiWrapperProvider, ApiComponentProvider]);
 
   // Continue with the rest of our app...
 }
@@ -107,17 +131,18 @@ async function main() {
 
 ## Step 4: Use the Service Container
 
-Now that our service container is filled with services we can use it throughout our codebase!
+Now that our service container is filled with services we can use it throughout our codebase! All
+services are instantiated, injected, and booted asynchronously and in the correct order automatically!
 
 ```typescript
 import { services } from './somewhere/services.ts';
 
 async function myFunc() {
   // Get our service
-  const serviceB = await services.get('serviceB');
+  const apiComponent = await services.get('apiComponent', 500);
 
   // Use our service
-  const response = await serviceB.apiCall();
+  const response = await apiComponent.apiCall();
 
   // Yay!
 }

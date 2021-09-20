@@ -46,15 +46,11 @@ Be Our Guest purposefully does not provide support for Automatic Dependency Inje
 
 ## How It Works
 
-TODO
+Be Our Guest is made up of three parts, the **Registry Type**, the **Service Container**, and the **Service Provider**. Here is a basic diagram of how each part operates.
 
 ![Service Container Parts Diagram](images/be-our-guest.png)
 
-Be Our Guest is made up of three parts, the **Registry Type**, the **Service Container**, and the **Service Provider**. Here is a basic diagram of how each part operates.
-
-All services registered into the container must be wrapped by a Service Provider. The Service Provider provides hooks for
-registering your services and booting your service. All services will go through the register phase first. Once the register
-phase is completed then all services that define a boot method in their provider will be booted.
+All services registered into the container must be wrapped by a **Service Provider**. The **Service Provider** provides hooks for registering and booting your services. All services will go through the register phase first. Once the register phase is completed then all services that define a boot method in their provider will be booted. Once your services have completed registration and booting you can then effortlessly retrieve them from the container by their key. The usage instructions below will dive deeper into setup and implementation.
 
 ## Installation
 
@@ -72,7 +68,8 @@ yarn add be-our-guest
 
 ## Usage
 
-Follow the appropriate link below for your environment.
+Follow the appropriate link below for your environment. We highly recommend using this library with
+TypeScript, but if that is not possible we are also providing vanilla JS setup instructions below.
 
 - [TypeScript Steps](docs/typescript-steps.md)
 - [JavaScript Steps](docs/javascript-steps.md)
