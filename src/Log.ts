@@ -1,4 +1,4 @@
-import { LogOverrides } from "./_contracts";
+import { LogOverrides } from './_contracts';
 
 /**
  * A simple logger that allows the end user to override the
@@ -18,20 +18,20 @@ export class Log {
    * Prints an info level log.
    */
   public info(...args: unknown[]): void {
-    this.fire("info", args);
+    this.fire('info', args);
   }
 
   /**
    * Prints an error level log.
    */
   public error(...args: unknown[]): void {
-    this.fire("error", ...args);
+    this.fire('error', ...args);
   }
 
   /**
    * Prints a log of the given level.
    */
-  private fire(level: "info" | "error", ...args: unknown[]): void {
+  private fire(level: 'info' | 'error', ...args: unknown[]): void {
     this.overrides?.[level] && this.overrides.suppress !== true
       ? this.overrides[level](args)
       : console[level](...args);
