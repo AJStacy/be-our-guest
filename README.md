@@ -2,17 +2,9 @@
 
 ![Be Our Guest logo](images/logo-small.svg)
 
-> Fast and friendly services.
+> A fast asynchronous IoC service container to help manage your apps dependencies.
 
-Be Our Guest is lightweight, asynchronous, inversion of control (IoC) service container developed for JavaScript and TypeScript applications.
-
-## Why Use an IoC Service Container?
-
-In modern front-end and back-end development applications are made up of many smaller modules. Often these smaller modules have dependency on other modules. Each of these modules may need a boot step to initialize it. Rather than have the module that has a dependency initialize that dependency itself, we initialize it externally and pass it into the module. By following this pattern we can initialize and manage all of our modules at a single level which greatly simplifies our architecture management. It also allows us to easily swap modules if our requirements change.
-
-A deep dive tutorial on IoC can be found here: [https://www.tutorialsteacher.com/ioc/introduction](https://www.tutorialsteacher.com/ioc/introduction)
-
-A service container gives our applications an easy way to register and initialize all of the modules and their dependencies.
+**Be Our Guest** is lightweight, asynchronous, inversion of control (IoC) service container developed for JavaScript and TypeScript applications. Often times in modern web application development you will have many modules that your app requires including things like api wrappers, third-party libraries, or private modules for handling business logic. Managing the order in which they are instantiated and booted and awaiting asynchronous actions can be painful to do in large applications without a service container. **Be Our Guest** solves these issues for you by giving your app a standard way of instantiating and booting your dependencies, all asynchronously which can drastically improve boot speed.
 
 ## Why Use "Be Our Guest"?
 
@@ -39,6 +31,14 @@ const myClass = services.get<MyClass>('MyClass');
 // our services when we created our service container instance
 const myClass = await services.get('MyClass');
 ```
+
+## Why Use an IoC Service Container?
+
+In modern front-end and back-end development applications are made up of many smaller modules. Often these smaller modules have dependency on other modules. Each of these modules may need a boot step to initialize it. Rather than have the module that has a dependency initialize that dependency itself, we initialize it externally and pass it into the module. By following this pattern we can initialize and manage all of our modules at a single level which greatly simplifies our architecture management. It also allows us to easily swap modules if our requirements change.
+
+A deep dive tutorial on IoC can be found here: [https://www.tutorialsteacher.com/ioc/introduction](https://www.tutorialsteacher.com/ioc/introduction)
+
+A service container gives our applications an easy way to register and initialize all of the modules and their dependencies.
 
 ### What about Automatic Dependency Injection?
 
@@ -68,13 +68,17 @@ npm install --save be-our-guest
 yarn add be-our-guest
 ```
 
-## Usage
+## Tutorials
 
 Follow the appropriate link below for your environment. We highly recommend using this library with
 TypeScript, but if that is not possible we are also providing vanilla JS setup instructions below.
 
-- [TypeScript Steps](docs/typescript-steps.md)
-- [JavaScript Steps](docs/javascript-steps.md)
+- [TypeScript Tutorial](docs/typescript-tutorial.md)
+- [JavaScript Tutorial](docs/javascript-tutorial.md)
+
+## API Documentation
+
+- [API Documentation](docs/api.md)
 
 ## Credits
 

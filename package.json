@@ -7,6 +7,7 @@
     "dist",
     "src"
   ],
+  "description": "A fast asynchronous IoC service container to help manage your apps dependencies.",
   "homepage": "https://github.com/AJStacy/be-our-guest",
   "repository": {
     "type": "git",

@@ -1,4 +1,4 @@
-# TypeScript Usage Steps
+# TypeScript Tutorial
 
 For the purposes of this tutorial, let's say we want to register an ApiWrapper module and an
 ApiComponent module that requires an instance of the ApiWrapper into our service container.
@@ -12,12 +12,14 @@ import { Registry, Services, ServiceProvider } from 'be-our-guest';
 // Import the services you want to provide
 import { ApiWrapper } from './somewhere/ApiWrapper';
 import { ApiComponent } from './somewhere/ApiComponent';
+import { OtherModule } from './somewhere/OtherModule';
 
 // This interface describes each of your services
 interface AppServicesRegistry extends Registry {
   /* When creating your registry type, the key of the type is what you will call when you want
      to get the service from the container. */
   apiWrapper: ApiWrapper;
+  otherModule: OtherModule;
 
   /* If your service requires primitive arguments when registered you can write it like this.
      In this example, ApiComponent requires the user to provide a primitive value that is a number. */
@@ -43,7 +45,7 @@ In this step we will create a service provider for _ApiWrapper_. In this example
 instance of _ApiWrapper_ any time we retrieve it from the container. To do this we will use the
 `singleton()` method on the service container.
 
-### Example: ApiWrapper Provider
+### Example: ApiWrapper Provider (Singleton)
 
 ```typescript
 // api-wrapper-provider.ts
@@ -75,7 +77,7 @@ export class ApiWrapperProvider implements AppServiceProvider {
 }
 ```
 
-### Example: ApiComponent Provider
+### Example: ApiComponent Provider (Class)
 
 Remember, the beauty of using an IoC service container is that management of dependency instantiation is handled for you.
 
@@ -106,6 +108,27 @@ export class ApiComponentProvider implements AppServiceProvider {
 }
 ```
 
+### Example: OtherModule Provider (Instance)
+
+Occassionally you will have a dependency within your app that has been instantiated elsewhere. In these cases you can directly assign these instances to the service container by using the `instance()` method.
+
+```typescript
+// other-module-provider.ts
+
+// Import our AppServiceProvider and AppServices types we defined in step #1
+import { AppServiceProvider, AppServices } from './somewhere/services.ts';
+// Import your service that you want to add
+import { OtherModule } from './somewhere/OtherModule.ts';
+
+export class OtherModuleProvider implements AppServiceProvider {
+  public async register(services: AppServices) {
+    /* OtherModule was instantiated elsewhere in our app. We can add it to the service container
+       by using the instance method. */
+    services.instance('otherModule', OtherModule);
+  }
+}
+```
+
 ## Step 3: Add Service Provider to the Container
 
 Now that we have created our service providers we must add them to the service container. The service container will begin registering and booting all of the providers once the `add()` method has been called and the providers have been passed into it.
@@ -117,12 +140,13 @@ import { services } from './somewhere/services.ts';
 import {
   ApiWrapperProvider,
   ApiComponentProvider,
+  OtherModuleProvider,
 } from './somewhere/providers.ts';
 
 async function main() {
   /* We'll add the service providers to the container and voila! We have a service container
     with all of our services available! The order in which they are added here does not matter. */
-  await services.add([ApiWrapperProvider, ApiComponentProvider]);
+  await services.add([ApiWrapperProvider, ApiComponentProvider, OtherModuleProvider]);
 
   // Continue with the rest of our app...
 }
@@ -144,5 +168,114 @@ async function myFunc() {
   const response = await apiComponent.apiCall();
 
   // Yay!
+}
+```
+
+---
+
+## Putting it All Together
+
+Here's an overview without all of the comments.
+
+### services.ts
+
+```typescript
+import { Registry, Services, ServiceProvider } from 'be-our-guest';
+import { ApiWrapper } from './somewhere/ApiWrapper';
+import { ApiComponent } from './somewhere/ApiComponent';
+import { OtherModule } from './somewhere/OtherModule';
+
+interface AppServicesRegistry extends Registry {
+  apiWrapper: ApiWrapper;
+  otherModule: OtherModule;
+  apiComponent: {
+    type: ApiComponent;
+    args: [number];
+  };
+}
+
+export type AppServices = Services<MyServicesRegistry>;
+export type AppServiceProvider = ServiceProvider<MyServicesRegistry>;
+export const services = new Services<AppServicesRegistry>();
+```
+
+### api-wrapper-provider.ts
+
+```typescript
+import { AppServiceProvider, AppServices } from './somewhere/services.ts';
+import { ApiWrapper } from './somewhere/ApiWrapper.ts';
+
+export class ApiWrapperProvider implements AppServiceProvider {
+  public async register(services: AppServices) {
+    services.singleton('apiWrapper', async () => {
+      // Construct your service.
+      return new ApiWrapper('https://my.endpoint.io/api');
+    });
+  }
+
+  public async boot(services: AppServices) {
+    const apiWrapper = await services.get('apiWrapper');
+    await apiWrapper.initialize();
+  }
+}
+```
+
+### api-component-provider.ts
+
+```typescript
+import { AppServiceProvider, AppServices } from './somewhere/services.ts';
+import { ApiComponent } from './somewhere/ApiComponent.ts';
+
+export class ApiComponentProvider implements AppServiceProvider {
+  public async register(services: AppServices) {
+    services.bind('apiComponent', async ([timeout]) => {
+      return new ApiComponent(await services.get('apiWrapper'), timeout);
+    });
+  }
+}
+```
+
+### other-module-provider.ts
+
+```typescript
+import { AppServiceProvider, AppServices } from './somewhere/services.ts';
+import { OtherModule } from './somewhere/OtherModule.ts';
+
+export class OtherModuleProvider implements AppServiceProvider {
+  public async register(services: AppServices) {
+    services.instance('otherModule', OtherModule);
+  }
+}
+```
+
+### main.ts
+
+> The main place our app boots (varies by framework).
+
+```typescript
+import { services } from './somewhere/services.ts';
+import {
+  ApiWrapperProvider,
+  ApiComponentProvider,
+  OtherModuleProvider,
+} from './somewhere/providers.ts';
+
+async function main() {
+  await services.add([ApiWrapperProvider, ApiComponentProvider, OtherModuleProvider]);
+
+  // continue with the rest of our app...
+}
+```
+
+### elsewhere.ts
+
+> Example of using our service in the app.
+
+```typescript
+import { services } from './somewhere/services.ts';
+
+async function myFunc() {
+  const apiComponent = await services.get('apiComponent', 500);
+  const response = await apiComponent.apiCall();
 }
 ```
