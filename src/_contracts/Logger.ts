@@ -1,5 +1,7 @@
+export type LogFunc = (...args: unknown[]) => void;
+
 export interface LogOverrides {
   suppress: boolean;
-  info(args: any[]): void;
-  error(args: any[]): void;
+  info?: LogFunc;
+  error?: LogFunc;
 }

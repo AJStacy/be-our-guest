@@ -1,4 +1,4 @@
-# JavaScript (Vanilla) Usage Steps
+# JavaScript (Vanilla) Tutorial
 
 For the purposes of this tutorial, let's say we want to register an ApiWrapper module and an
 ApiComponent module that requires an instance of the ApiWrapper into our service container.
@@ -19,7 +19,7 @@ In this step we will create a service provider for _ApiWrapper_. In this example
 instance of _ApiWrapper_ any time we retrieve it from the container. To do this we will use the
 `singleton()` method on the service container.
 
-### Example: ApiWrapper Provider
+### Example: ApiWrapper Provider (Singleton)
 
 ```typescript
 // api-wrapper-provider.js
@@ -50,7 +50,7 @@ export class ApiWrapperProvider {
 }
 ```
 
-### Example: ApiComponent Provider
+### Example: ApiComponent Provider (Class)
 
 Remember, the beauty of using an IoC service container is that management of dependency instantiation is handled for you.
 
@@ -79,6 +79,25 @@ export class ApiComponentProvider {
 }
 ```
 
+### Example: OtherModule Provider (Instance)
+
+Occassionally you will have a dependency within your app that has been instantiated elsewhere. In these cases you can directly assign these instances to the service container by using the `instance()` method.
+
+```typescript
+// other-module-provider.js
+
+// Import your service that you want to add
+import { OtherModule } from './somewhere/OtherModule.js';
+
+export class OtherModuleProvider implements AppServiceProvider {
+  async register(services) {
+    /* OtherModule was instantiated elsewhere in our app. We can add it to the service container
+       by using the instance method. */
+    services.instance('otherModule', OtherModule);
+  }
+}
+```
+
 ## Step 3: Add Service Provider to the Container
 
 Now that we have created our service providers we must add them to the service container. The service container will begin registering and booting all of the providers once the `add()` method has been called and the providers have been passed into it.
@@ -90,12 +109,13 @@ import { services } from './somewhere/services.js';
 import {
   ApiWrapperProvider,
   ApiComponentProvider,
+  OtherModuleProvider,
 } from './somewhere/providers.js';
 
 async function main() {
   /* We'll add the service providers to the container and voila! We have a service container
     with all of our services available! The order in which they are added here does not matter. */
-  await services.add([ApiWrapperProvider, ApiComponentProvider]);
+  await services.add([ApiWrapperProvider, ApiComponentProvider, OtherModuleProvider]);
 
   // Continue with the rest of our app...
 }
@@ -117,5 +137,94 @@ async function myFunc() {
   const response = await apiComponent.apiCall();
 
   // Yay!
+}
+```
+
+## Putting it All Together
+
+Here's an overview without all of the comments.
+
+### services.js
+
+```javascript
+import { Services } from 'be-our-guest';
+
+export const services = new Services();
+```
+
+### api-wrapper-provider.js
+
+```javascript
+import { ApiWrapper } from './somewhere/ApiWrapper.js';
+
+export class ApiWrapperProvider {
+  async register(services) {
+    services.singleton('apiWrapper', async () => {
+      return new ApiWrapper('https://my.endpoint.io/api');
+    });
+  }
+
+  async boot(services) {
+    const apiWrapper = await services.get('apiWrapper');
+    await apiWrapper.initialize();
+  }
+}
+```
+
+### api-component-provider.js
+
+```javascript
+import { ApiComponent } from './somewhere/ApiComponent.js';
+
+export class ApiComponentProvider {
+  async register(services) {
+    services.bind('apiComponent', async ([timeout]) => {
+      return new ApiComponent(await services.get('apiWrapper'), timeout);
+    });
+  }
+}
+```
+
+### other-module-provider.js
+
+```javascript
+import { OtherModule } from './somewhere/OtherModule.js';
+
+export class OtherModuleProvider {
+  async register(services) {
+    services.instance('otherModule', OtherModule);
+  }
+}
+```
+
+### main.ts
+
+> The main place our app boots (varies by framework).
+
+```javascript
+import { services } from './somewhere/services.js';
+import {
+  ApiWrapperProvider,
+  ApiComponentProvider,
+  OtherModuleProvider,
+} from './somewhere/providers.js';
+
+async function main() {
+  await services.add([ApiWrapperProvider, ApiComponentProvider, OtherModuleProvider]);
+
+  // continue with the rest of our app...
+}
+```
+
+### elsewhere.ts
+
+> Example of using our service in the app.
+
+```javascript
+import { services } from './somewhere/services.js';
+
+async function myFunc() {
+  const apiComponent = await services.get('apiComponent', 500);
+  const response = await apiComponent.apiCall();
 }
 ```
