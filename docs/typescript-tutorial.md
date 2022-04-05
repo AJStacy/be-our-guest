@@ -30,10 +30,10 @@ interface AppServicesRegistry extends Registry {
 }
 
 // Next we'll create a convenient type alias for referencing our service container instance
-export type AppServices = Services<MyServicesRegistry>;
+export type AppServices = Services<AppServicesRegistry>;
 
 // And we'll create a convenient type alias for our Service Providers
-export type AppServiceProvider = ServiceProvider<MyServicesRegistry>;
+export type AppServiceProvider = ServiceProvider<AppServicesRegistry>;
 
 // We'll instantiate our service container with our Registry type
 export const services = new Services<AppServicesRegistry>();
