@@ -60,7 +60,7 @@ export class ApiWrapperProvider implements AppServiceProvider {
   public async register(services: AppServices) {
     /* We will bind this service to the container as a singleton. The first
        parameter, the service name, must match the key in your registry type. */
-    services.singleton('apiWrapper', async () => {
+    await services.singleton('apiWrapper', async () => {
       // Construct your service.
       return new ApiWrapper('https://my.endpoint.io/api');
     });
@@ -124,7 +124,7 @@ export class OtherModuleProvider implements AppServiceProvider {
   public async register(services: AppServices) {
     /* OtherModule was instantiated elsewhere in our app. We can add it to the service container
        by using the instance method. */
-    services.instance('otherModule', OtherModule);
+    await services.instance('otherModule', OtherModule);
   }
 }
 ```
