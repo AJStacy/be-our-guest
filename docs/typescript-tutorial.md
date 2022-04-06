@@ -97,7 +97,7 @@ export class ApiComponentProvider implements AppServiceProvider {
        When we retrieve this service later it will be a unique instance. Our ApiComponent
        also requires a request timeout value. We can access it by destructuring the provided
        args in the callback. The arg types are defined in the Registry type (above). */
-    services.bind('apiComponent', async ([timeout]) => {
+    await services.bind('apiComponent', async ([timeout]) => {
       /* The ApiComponent service requires that you provide it with an instance of
          the ApiWrapper. To do this, we simply call `get()` on our service container. */
       return new ApiComponent(await services.get('apiWrapper'), timeout);
