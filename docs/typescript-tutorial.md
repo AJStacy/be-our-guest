@@ -30,10 +30,10 @@ interface AppServicesRegistry extends Registry {
 }
 
 // Next we'll create a convenient type alias for referencing our service container instance
-export type AppServices = Services<MyServicesRegistry>;
+export type AppServices = Services<AppServicesRegistry>;
 
 // And we'll create a convenient type alias for our Service Providers
-export type AppServiceProvider = ServiceProvider<MyServicesRegistry>;
+export type AppServiceProvider = ServiceProvider<AppServicesRegistry>;
 
 // We'll instantiate our service container with our Registry type
 export const services = new Services<AppServicesRegistry>();
@@ -60,7 +60,7 @@ export class ApiWrapperProvider implements AppServiceProvider {
   public async register(services: AppServices) {
     /* We will bind this service to the container as a singleton. The first
        parameter, the service name, must match the key in your registry type. */
-    services.singleton('apiWrapper', async () => {
+    await services.singleton('apiWrapper', async () => {
       // Construct your service.
       return new ApiWrapper('https://my.endpoint.io/api');
     });
@@ -97,7 +97,7 @@ export class ApiComponentProvider implements AppServiceProvider {
        When we retrieve this service later it will be a unique instance. Our ApiComponent
        also requires a request timeout value. We can access it by destructuring the provided
        args in the callback. The arg types are defined in the Registry type (above). */
-    services.bind('apiComponent', async ([timeout]) => {
+    await services.bind('apiComponent', async ([timeout]) => {
       /* The ApiComponent service requires that you provide it with an instance of
          the ApiWrapper. To do this, we simply call `get()` on our service container. */
       return new ApiComponent(await services.get('apiWrapper'), timeout);
@@ -124,7 +124,7 @@ export class OtherModuleProvider implements AppServiceProvider {
   public async register(services: AppServices) {
     /* OtherModule was instantiated elsewhere in our app. We can add it to the service container
        by using the instance method. */
-    services.instance('otherModule', OtherModule);
+    await services.instance('otherModule', OtherModule);
   }
 }
 ```
