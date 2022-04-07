@@ -1,6 +1,6 @@
 import { ServiceProvider, ServiceProviderConstructor } from '.';
 import { Log } from './Log';
-import { LogOverrides, Registry, DepDef, DepArgs } from '~/_contracts';
+import { LogOverrides, Registry, DepDef, DepArgs } from './_contracts';
 
 export type Tags = Map<string, string[]>;
 export type Callback<Dep, DepArgs> = (args: DepArgs) => Promise<Dep>;
