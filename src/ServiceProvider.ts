@@ -1,5 +1,5 @@
 import { Services } from '.';
-import { Registry } from '~/_contracts';
+import { Registry } from './_contracts';
 
 /**
  * The constructor blueprint for a ServiceProvider.
